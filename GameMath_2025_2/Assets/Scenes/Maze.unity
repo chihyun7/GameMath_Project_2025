@@ -284,8 +284,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11eeae60c2f28c14a9c410705b29f1b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  w: 21
-  h: 21
+  w: 50
+  h: 50
   wallProb: 0.35
   wallPrf: {fileID: 3871833434146515710, guid: 7f1a23aaea0190d448b0a80e40542eda, type: 3}
   floorPrf: {fileID: 5899076775411833892, guid: 1f5ccaa145e31ae4aba894f1dd99f763,
