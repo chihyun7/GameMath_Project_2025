@@ -138,10 +138,15 @@ public class UpgradeUI : MonoBehaviour
 
     List<(MaterialItem, int)> Greedy_MaxEfficiency(int need)
     {
-        var sorted = mats.OrderByDescending(m => (float)m.exp / m.cost).ToList();
+        // exp/gold 효율 높은 순
+        var sorted = mats
+            .OrderByDescending(m => (float)m.exp / m.cost)
+            .ToList();
+
         List<(MaterialItem, int)> result = new();
         int left = need;
 
+        // 효율 높은 것부터 가능한 만큼 구매
         foreach (var m in sorted)
         {
             while (left >= m.exp)
@@ -151,12 +156,24 @@ public class UpgradeUI : MonoBehaviour
             }
         }
 
+        // 아직 필요한 exp를 못 채웠으면
+        // 제일 효율 좋은 걸 1개 더 사서 초과시킴
+        if (left > 0)
+        {
+            result.Add((sorted[0], 1));
+        }
+
         return result;
     }
+
 
     List<(MaterialItem, int)> Greedy_BigFirst(int need)
     {
-        var sorted = mats.OrderByDescending(m => m.exp).ToList();
+        // exp 큰 것부터
+        var sorted = mats
+            .OrderByDescending(m => m.exp)
+            .ToList();
+
         List<(MaterialItem, int)> result = new();
         int left = need;
 
@@ -169,39 +186,57 @@ public class UpgradeUI : MonoBehaviour
             }
         }
 
+        // 남은 exp가 있으면 exp가 제일 큰 걸 하나 더 사서 초과시킴
+        if (left > 0)
+        {
+            result.Add((sorted[0], 1));
+        }
+
         return result;
     }
+
 
     // ======================================================
     void PrintResult(List<(MaterialItem, int)> list)
     {
+        // 종류별로 묶어서 개수 합산
+        var grouped = list
+            .GroupBy(x => x.Item1)
+            .Select(g => new
+            {
+                mat = g.Key,
+                count = g.Sum(x => x.Item2)
+            })
+            .Where(x => x.count > 0);
+
         string result = "";
         int totalCost = 0;
         int totalExp = 0;
 
-        foreach (var r in list)
+        foreach (var g in grouped)
         {
-            totalCost += r.Item1.cost * r.Item2;
-            totalExp += r.Item1.exp * r.Item2;
-            result += $"{r.Item1.name} x {r.Item2}\n";
+            totalCost += g.mat.cost * g.count;
+            totalExp += g.mat.exp * g.count;
+            result += $"{g.mat.name} x {g.count}\n";
         }
 
         result += $"\n총 exp: {totalExp}\n총 gold: {totalCost}";
         resultText.text = result;
     }
-}
 
-// ======================================================
-public class MaterialItem
-{
-    public string name;
-    public int exp;
-    public int cost;
 
-    public MaterialItem(string name, int exp, int cost)
+    // ======================================================
+    public class MaterialItem
     {
-        this.name = name;
-        this.exp = exp;
-        this.cost = cost;
+        public string name;
+        public int exp;
+        public int cost;
+
+        public MaterialItem(string name, int exp, int cost)
+        {
+            this.name = name;
+            this.exp = exp;
+            this.cost = cost;
+        }
     }
 }
